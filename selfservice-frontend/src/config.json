@@ -1,0 +1,6 @@
+{
+  "websocket_server": {
+    "ip": "localhost",
+    "port": 4000
+  }
+}
