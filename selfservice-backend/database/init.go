@@ -7,6 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/mitchellh/mapstructure"
 	"github.com/zanetworker/son-selfservice/selfservice-backend/models"
+	"time"
 )
 
 //Database is the struct for connecting to the database
@@ -37,25 +38,34 @@ func (db *Database) AddFSM(dbName, tableName string, dataToAdd interface{}) erro
 
 //NewDB initialize DB
 func NewDB() *Database {
+     	var err error
+	var sess *r.Session
 
-	//dbURL := configuration.AppConfig.DBHostIP + ":" + configuration.AppConfig.DBHostPort
-	session, err := r.Connect(r.ConnectOpts{
-		//TODO fetch from Config File
-		Address: "selfservice-db:28015",
-		//Address:  "localhost:28015",
-		Database: "fsms",
-	})
-	if err != nil {
-		log.Fatal(err.Error())
+	for i := 1; ; i++ {
+		//dbURL := configuration.AppConfig.DBHostIP + ":" + configuration.AppConfig.DBHostPort
+		session, err := r.Connect(r.ConnectOpts{
+			 //TODO fetch from Config File
+			 Address: "selfservice-db:28015",
+			 //Address:  "localhost:28015",
+			 Database: "fsms",
+		})
+		if err == nil {
+		   sess = session
+		   break
+	   	}
+		if i >= 10 {
+		   log.Fatal(err.Error())
+		}
+		time.Sleep(2*time.Second)
 	}
-
-	resp, err := r.DBCreate("fsms").RunWrite(session)
+	
+	resp, err := r.DBCreate("fsms").RunWrite(sess)
 	if err != nil {
 		fmt.Print(err)
 	}
 	log.Infof("%d DB created", resp.DBsCreated)
 
-	response, err := r.DB("fsms").TableCreate("fsm_psa").RunWrite(session)
+	response, err := r.DB("fsms").TableCreate("fsm_psa").RunWrite(sess)
 	if err != nil {
 		log.Errorf("Error creating table: %s", err)
 	}
@@ -63,7 +73,7 @@ func NewDB() *Database {
 	log.Infof("%d table created", response.TablesCreated)
 
 	return &Database{
-		Connection: session,
+		Connection: sess,
 		DBChannel:  make(chan r.ChangeResponse),
 	}
 }
