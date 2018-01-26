@@ -57,8 +57,8 @@ class Server:
                   "name": "basic start",
                   "data":
                   [
-                      {"name": "Firewall", "id": "1", "state": "started"},
-                      {"name": "VPN", "id": "2", "state": "started"}
+                      {"name": "VPN", "id": "1", "state": "started"},
+                      {"name": "TOR", "id": "2", "state": "started"}
                   ],
                   }
 
@@ -68,8 +68,8 @@ class Server:
                   "name": "basic stop",
                   "data":
                   [
-                      {"name": "Firewall", "id": "1", "state": "stopped"},
-                      {"name": "VPN", "id": "2", "state": "stopped"}
+                      {"name": "VPN", "id": "1", "state": "stopped"},
+                      {"name": "TOR", "id": "2", "state": "stopped"}
                   ],
                   }
 
@@ -80,11 +80,9 @@ class Server:
                     "name": "anon start",
                     "data":
                     [
-                      {"name": "Firewall", "id": "1", "state": "started"},
-                      {"name": "VPN", "id": "2", "state": "started"},
-                      {"name": "TOR", "id": "3", "state": "started"},
-                      {"name": "HTTP Proxy", "id": "4", "state": "started"},
-                      {"name": "IDS", "id": "5", "state": "started"}
+                      {"name": "VPN", "id": "1", "state": "started"},
+                      {"name": "Proxy", "id": "2", "state": "started"},
+                      {"name": "TOR", "id": "3", "state": "started"}
                     ],
                     }
 
@@ -94,11 +92,9 @@ class Server:
                   "name": "anon stop",
                   "data":
                   [
-                    {"name": "Firewall", "id": "1", "state": "stopped"},
-                    {"name": "VPN", "id": "2", "state": "stopped"},
-                    {"name": "TOR", "id": "3", "state": "stopped"},
-                    {"name": "HTTP Proxy", "id": "4", "state": "stopped"},
-                    {"name": "IDS", "id": "5", "state": "stopped"}
+                    {"name": "VPN", "id": "1", "state": "stopped"},
+                    {"name": "Proxy", "id": "2", "state": "stopped"},
+                    {"name": "TOR", "id": "3", "state": "stopped"}
                   ],
                   }
 
@@ -137,11 +133,9 @@ class Client:
         ##TODO replace toSend with real reply within the SSM
         toSend  = {"name": "fsm add", "data":
         [
-            {"name": "Firewall", "fsmId": "1", "state": "stopped"},
-            {"name": "VPN", "fsmId": "2", "state": "started"},
-            {"name": "TOR", "fsmId": "3", "state": "started"},
-            {"name": "HTTP Proxy", "fsmId": "4", "state": "started"},
-            {"name": "IDS", "fsmId": "5", "state": "stopped"}
+            {"name": "VPN", "fsmId": "1", "state": "stopped"},
+            {"name": "Proxy", "fsmId": "2", "state": "started"},
+            {"name": "TOR", "fsmId": "3", "state": "started"}
         ],
         }
         toSendJson = dumps(toSend)
@@ -149,20 +143,23 @@ class Client:
         ws.close()
 
     def advertiseFSMs(self):
+        print("starting web socket")
         websocket.enableTrace(True)
-        selfservice_backend = "localhost"
+        selfservice_backend = "selfservice-backend"
         ws = websocket.WebSocketApp("ws://"+selfservice_backend+":4000/ws",
                                   on_message = self.on_message,
                                   on_error = self.on_error,
                                   on_close = self.on_close)
+        print("opening web socket")
         ws.on_open = self.on_open
+        print("opened web socket to "+selfservice_backend)
         ws.run_forever()
 
 
 if __name__ == "__main__":
 
-    client = Client()
+#    client = Client()
     server = Server()
 
-    Thread(target = client.advertiseFSMs()).start()
+#    Thread(target = client.advertiseFSMs()).start()
     Thread(target = server.listenToFSMRequests()).start()

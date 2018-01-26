@@ -315,17 +315,17 @@ render(){
           <div className="fullwidth">
             <div className="gallery">
               <figure className="item" onClick={() => this.updateModalInside(!modalStateBasic, "basic")}>
-                <div className="img-wrap"><a><img src="https://downtownsandiego.org/wp-content/uploads/2015/01/basic-agency-logo.png" alt=""/></a></div>
+                <div className="img-wrap"><a><img src="https://raw.githubusercontent.com/sonata-nfv/son-selfservice/master/selfservice-frontend/public/basic.png" alt="basic"/></a></div>
                 <figcaption className="caption">
-                    <h3>A Basic Service That Runs Seamlinglissly</h3>
+            <h3>Basic Anonymization Service: TOR</h3>
 
                 </figcaption>
               </figure>
 
               <figure className="item"  onClick={() => this.updateModalInside(!modalStateAnon, "anon")}>
-                <div className="img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Anonymous_emblem.svg/1200px-Anonymous_emblem.svg.png" alt="" /></div>
+                <div className="img-wrap"><img src="https://raw.githubusercontent.com/sonata-nfv/son-selfservice/master/selfservice-frontend/public/premium.png" alt="premium" /></div>
                 <figcaption className="caption">
-                    <h3 className="display-3">Anonymous Routing Service</h3>
+                    <h3 className="display-3">Premium Anonymization Service: TOR + Proxy</h3>
                 </figcaption>
               </figure>
             </div>
