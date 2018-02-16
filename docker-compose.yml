@@ -7,7 +7,7 @@ services:
     ports:
      - "5000:5000"
     networks:
-      sonselfservice2:
+      sonselfservice:
         ipv4_address: 10.5.0.2
     depends_on:
       - backend
@@ -20,7 +20,7 @@ services:
     ports:
      - "4000:4000"
     networks:
-      sonselfservice2:
+      sonselfservice:
         ipv4_address: 10.5.0.3
     depends_on:
      - db
@@ -35,7 +35,7 @@ services:
     volumes:
       - "$PWD:/data"
     networks:
-      sonselfservice2:
+      sonselfservice:
         ipv4_address: 10.5.0.4
 
   ssmstub:
@@ -44,14 +44,14 @@ services:
     ports:
      - "9191:9191"
     networks:
-      sonselfservice2:
+      sonselfservice:
         ipv4_address: 10.5.0.5
     depends_on:
      - backend
 
 
 networks:
-  sonselfservice2:
+  sonselfservice:
     driver: bridge
     ipam:
      config:
