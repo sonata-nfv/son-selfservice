@@ -25,5 +25,6 @@ func main() {
 	router.Handle("anon stop", handlers.StopServiceAnon)
 
 	http.Handle("/ws", router)
+	http.HandleFunc("/ssm", handlers.SSMConnect)
 	log.Fatal(http.ListenAndServe(":4000", nil))
 }

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"net/url"
+	"net/http"
 	"reflect"
 
 	r "github.com/GoRethink/gorethink"
@@ -13,162 +13,110 @@ import (
 	"github.com/zanetworker/son-selfservice/selfservice-backend/models"
 )
 
-var (
-	//URL used for connecting to ssm
-	// URL = url.URL{Scheme: "ws", Host: "localhost:9191", Path: "/echo"}
-	URL = url.URL{Scheme: "ws", Host: "selfservice-ssm:9191", Path: "/echo"}
-)
+
+// The WebSocket connection to the SSM
+var ssmConnection *websocket.Conn
+
+var upgrader = websocket.Upgrader{
+    ReadBufferSize:  1024,
+    WriteBufferSize: 1024,
+}
+
+func SSMConnect(w http.ResponseWriter, r *http.Request) {
+     log.Info("Received SSM connection!")
+
+     conn, err := upgrader.Upgrade(w, r, nil)
+     if err != nil {
+        log.Error(err)
+        return
+     }
+     ssmConnection = conn
+}
+
+func sendMessage(request models.Message) (response models.Message) {
+    log.Infof("Sending data: %#v", request)
+    err := ssmConnection.WriteJSON(request)
+    if err != nil {
+        log.Error("ERROR on send: ", err)
+        return
+    }
+
+    log.Info("Reading reply...")
+    err = ssmConnection.ReadJSON(&response)
+    if err != nil {
+        log.Error("ERROR on read: ", err)
+        return
+    }
+    log.Infof("Received: %#v", response)
+    return response
+}
 
 //StartServiceBasic command to send the SSM for starting the basic tier service
 func StartServiceBasic(client *communication.Client, serviceInputData interface{}) {
-	log.Infof("Starting Service Basic: %#v\n", serviceInputData)
+	log.Info("Starting service BASIC")
 
 	var serviceRequest models.Message
 	var serviceReply models.Message
 
-	serviceRequest.Name = "basic start"
+	serviceRequest.Name = "basic"
 	serviceReply.Data = ""
 
-	//Initiate the websocket connection
-	//u := url.URL{Scheme: "ws", Host: "selfservice-ssm:9191", Path: "/echo"}
-	// u := url.URL{Scheme: "ws", Host: "localhost:9191", Path: "/echo"}
+	// Send the message to the SSM
+	serviceReply = sendMessage(serviceRequest)
 
-	c, _, err := websocket.DefaultDialer.Dial(URL.String(), nil)
-	if err != nil {
-		log.Error("Failed to Connect to SSM!")
-	}
-	defer c.Close()
-
-	err = c.WriteJSON(serviceRequest)
-	if err != nil {
-		log.Println("write:", err)
-		return
-	}
-
-	log.Info("Reading Reply...!")
-	err = c.ReadJSON(&serviceReply)
-	if err != nil {
-		log.Println("Read:", err)
-		return
-	}
-
-	log.Info(serviceReply)
 	client.Send <- serviceReply
-	log.Info("Started Service")
+	log.Info("Started service BASIC")
 }
 
 //StopServiceBasic command to send the SSM for starting the basic tier service
 func StopServiceBasic(client *communication.Client, serviceInputData interface{}) {
-	log.Infof("Starting Service Basic: %#v\n", serviceInputData)
+	log.Info("Stopping Service BASIC")
 
 	var serviceRequest models.Message
 	var serviceReply models.Message
 
-	serviceRequest.Name = "basic stop"
+	serviceRequest.Name = "stop"
 	serviceReply.Data = ""
 
-	//Initiate the websocket connection
-	//u := url.URL{Scheme: "ws", Host: "selfservice-ssm:9191", Path: "/echo"}
-	// u := url.URL{Scheme: "ws", Host: "localhost:9191", Path: "/echo"}
+        // Send the message to the SSM
+        serviceReply = sendMessage(serviceRequest)
 
-	c, _, err := websocket.DefaultDialer.Dial(URL.String(), nil)
-	if err != nil {
-		log.Error("Failed to Connect to SSM!")
-	}
-	defer c.Close()
-
-	err = c.WriteJSON(serviceRequest)
-	if err != nil {
-		log.Println("write:", err)
-		return
-	}
-
-	log.Info("Reading Reply...!")
-	err = c.ReadJSON(&serviceReply)
-	if err != nil {
-		log.Println("Read:", err)
-		return
-	}
-
-	log.Info(serviceReply)
 	client.Send <- serviceReply
-	log.Info("Started Service")
+	log.Info("Stopped service BASIC")
 }
 
 //StartServiceAnon command to send the SSM for starting the Anon tier service
 func StartServiceAnon(client *communication.Client, serviceInputData interface{}) {
-	log.Infof("Starting Service Anon: %#v\n", serviceInputData)
+	log.Info("Starting Service ANON")
 
 	var serviceRequest models.Message
 	var serviceReply models.Message
 
-	serviceRequest.Name = "anon start"
+	serviceRequest.Name = "anon"
 	serviceReply.Data = ""
 
-	//Initiate the websocket connection
-	//u := url.URL{Scheme: "ws", Host: "selfservice-ssm:9191", Path: "/echo"}
-	// u := url.URL{Scheme: "ws", Host: "localhost:9191", Path: "/echo"}
+        // Send the message to the SSM
+        serviceReply = sendMessage(serviceRequest)
 
-	c, _, err := websocket.DefaultDialer.Dial(URL.String(), nil)
-	if err != nil {
-		log.Error("Failed to Connect to SSM!")
-	}
-	defer c.Close()
-
-	err = c.WriteJSON(serviceRequest)
-	if err != nil {
-		log.Println("write:", err)
-		return
-	}
-
-	log.Info("Reading Reply...!")
-	err = c.ReadJSON(&serviceReply)
-	if err != nil {
-		log.Println("Read:", err)
-		return
-	}
-
-	log.Info(serviceReply)
 	client.Send <- serviceReply
-	log.Info("Started Service")
+	log.Info("Started service ANON")
 }
 
 //StopServiceAnon command to send the SSM for starting the Anon tier service
 func StopServiceAnon(client *communication.Client, serviceInputData interface{}) {
-	log.Infof("Starting Service Anon: %#v\n", serviceInputData)
+	log.Info("Stopping Service ANON")
 
 	var serviceRequest models.Message
 	var serviceReply models.Message
 
-	serviceRequest.Name = "anon stop"
+	serviceRequest.Name = "stop"
 	serviceReply.Data = ""
 
-	//Initiate the websocket connection
-	//u := url.URL{Scheme: "ws", Host: "selfservice-ssm:9191", Path: "/echo"}
-	// u := url.URL{Scheme: "ws", Host: "localhost:9191", Path: "/echo"}
+        // Send the message to the SSM
+        serviceReply = sendMessage(serviceRequest)
 
-	c, _, err := websocket.DefaultDialer.Dial(URL.String(), nil)
-	if err != nil {
-		log.Error("Failed to Connect to SSM!")
-	}
-	defer c.Close()
-
-	err = c.WriteJSON(serviceRequest)
-	if err != nil {
-		log.Println("write:", err)
-		return
-	}
-
-	log.Info("Reading Reply...!")
-	err = c.ReadJSON(&serviceReply)
-	if err != nil {
-		log.Println("Read:", err)
-		return
-	}
-
-	log.Info(serviceReply)
 	client.Send <- serviceReply
-	log.Info("Started Service")
+	log.Info("Stopped service ANON")
 }
 
 //StartFSM command to send the SSM to start a specific FSM
@@ -184,30 +132,9 @@ func StartFSM(client *communication.Client, fsmInputData interface{}) {
 	fsmDataRequest.Name = "fsm start"
 	fsmDataRequest.Data = fsmData
 
-	//Initiate the websocket connection
-	//u := url.URL{Scheme: "ws", Host: "selfservice-ssm:9191", Path: "/echo"}
-	// u := url.URL{Scheme: "ws", Host: "localhost:9191", Path: "/echo"}
+        // Send the message to the SSM
+        //fsmDataReply = sendMessage(fsmDataRequest)
 
-	c, _, err := websocket.DefaultDialer.Dial(URL.String(), nil)
-	if err != nil {
-		log.Error("Failed to Connect to SSM!")
-	}
-	defer c.Close()
-
-	err = c.WriteJSON(fsmDataRequest)
-	if err != nil {
-		log.Println("write:", err)
-		return
-	}
-
-	log.Info("Reading Reply...!")
-	err = c.ReadJSON(&fsmDataReply)
-	if err != nil {
-		log.Println("Read:", err)
-		return
-	}
-
-	log.Info(fsmDataReply)
 	client.Send <- fsmDataReply
 	log.Info("Started FSM")
 }
@@ -225,28 +152,9 @@ func StopFSM(client *communication.Client, fsmInputData interface{}) {
 	fsmDataRequest.Name = "fsm stop"
 	fsmDataRequest.Data = fsmData
 
-	//Initiate the websocket connection
-	// u := url.URL{Scheme: "ws", Host: "selfservice-ssm:1234", Path: "/echo"}
-	c, _, err := websocket.DefaultDialer.Dial(URL.String(), nil)
-	if err != nil {
-		log.Error("Failded to Connect to SSM!")
-	}
-	defer c.Close()
+        // Send the message to the SSM
+        //fsmDataReply = sendMessage(fsmDataRequest)
 
-	err = c.WriteJSON(fsmDataRequest)
-	if err != nil {
-		log.Println("write:", err)
-		return
-	}
-
-	log.Info("Reading Reply...!")
-	err = c.ReadJSON(&fsmDataReply)
-	if err != nil {
-		log.Println("Read:", err)
-		return
-	}
-
-	log.Info(fsmDataReply)
 	client.Send <- fsmDataReply
 	log.Info("Stopped FSM")
 }
@@ -287,24 +195,6 @@ func AddFSMs(client *communication.Client, fsmsInputData interface{}) {
 
 }
 
-// //AddFSM adding an FSM
-// func AddFSM(client *commclient.Client, fsmInputData interface{}) {
-//
-// 	var fsmToInsert models.FSM
-// 	err := mapstructure.Decode(fsmInputData, &fsmToInsert)
-// 	if err != nil {
-// 		log.Error("Failed to map structure FSM")
-// 	} else {
-// 		response, err := r.DB("fsms").Table("fsm_psa").Insert(fsmToInsert).RunWrite(client.DB.Connection)
-// 		if err != nil {
-// 			log.Errorf("Failed to inser FSM: %s", err.Error())
-// 			return
-// 		}
-// 		log.Info(response)
-// 	}
-//
-// }
-
 //UpdateFSM used to update the database with FSMs information received from SSM
 func UpdateFSM(client *communication.Client, fsmInputData interface{}) {
 	res, err := r.DB("fsms").Table("fsm_psa").Filter(map[string]interface{}{
@@ -342,6 +232,5 @@ func UpdateFSM(client *communication.Client, fsmInputData interface{}) {
 		fmt.Print(err)
 		return
 	}
-	// log.Infof("%d users", len(results))
 
 }

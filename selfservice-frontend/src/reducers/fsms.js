@@ -7,13 +7,15 @@ import {UPDATE_FSMS_BASIC, UPDATE_FSMS_ANON} from '../actions'
 // }
 const INIT_STATE = {
   basic:[
-    {"name": "VPN",           "id": "1", "state": "stopped"},
-    {"name": "TOR",           "id": "2", "state": "stopped"},
+    {"name": "VPN",   "id": "1", "state": "stopped"},
+    {"name": "TOR",   "id": "2", "state": "stopped"},
+    {"name": "FW",    "id": "3", "state": "stopped"},
   ],
   anon:[
-    {"name": "VPN",           "id": "1", "state": "stopped"},
-    {"name": "Proxy",         "id": "2", "state": "stopped"},
-    {"name": "TOR",           "id": "3", "state": "stopped"}
+    {"name": "VPN",   "id": "1", "state": "stopped"},
+    {"name": "Proxy", "id": "2", "state": "stopped"},
+    {"name": "TOR",   "id": "3", "state": "stopped"},
+    {"name": "FW",    "id": "4", "state": "stopped"}
   ]
 };
 
