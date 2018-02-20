@@ -75,7 +75,7 @@ func StopServiceBasic(client *communication.Client, serviceInputData interface{}
 	var serviceRequest models.Message
 	var serviceReply models.Message
 
-	serviceRequest.Name = "stop"
+	serviceRequest.Name = "basic stop"
 	serviceReply.Data = ""
 
         // Send the message to the SSM
@@ -109,7 +109,7 @@ func StopServiceAnon(client *communication.Client, serviceInputData interface{})
 	var serviceRequest models.Message
 	var serviceReply models.Message
 
-	serviceRequest.Name = "stop"
+	serviceRequest.Name = "anon stop"
 	serviceReply.Data = ""
 
         // Send the message to the SSM
